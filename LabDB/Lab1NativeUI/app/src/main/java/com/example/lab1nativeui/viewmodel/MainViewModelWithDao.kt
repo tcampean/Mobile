@@ -42,35 +42,35 @@ class MainViewModelWithDao: ViewModel() {
     }
 
     fun insert(product: Product) = viewModelScope.launch(Dispatchers.IO) {
+        _action.postValue(AppConstants.ACTION_CREATE)
         try {
             _successful.postValue(repository.insert(ProductEntity(product.name, product.type, product.description, product.quantity, product.price)))
         }catch (e: SQLiteConstraintException) {
             _successful.postValue(-1)
             Log.e("Database Error", "Error inserting a new product \n" + e.message)
         }
-        _action.postValue(AppConstants.ACTION_CREATE)
     }
 
     fun delete(productEntity: ProductEntity) = viewModelScope.launch(Dispatchers.IO) {
         getProductPosition(productEntity)
+        _action.postValue(AppConstants.ACTION_DELETE)
         try {
             _successful.postValue(repository.delete(productEntity).toLong())
         }catch (e: SQLiteException) {
             _successful.postValue(-1)
             Log.e("Database Error", "Error deleting a product \n" + e.message)
         }
-        _action.postValue(AppConstants.ACTION_DELETE)
     }
 
     fun update(productEntity: ProductEntity) = viewModelScope.launch(Dispatchers.IO) {
         getProductPosition(productEntity)
+        _action.postValue(AppConstants.ACTION_UPDATE)
         try {
             _successful.postValue(repository.update(productEntity).toLong())
         }catch (e: SQLiteConstraintException) {
             _successful.postValue(-1)
             Log.e("Database Error", "Error updating a product \n" + e.message)
         }
-        _action.postValue(AppConstants.ACTION_UPDATE)
     }
 
     fun setupReceiverIntentFilter(): IntentFilter {
